@@ -42,56 +42,74 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MemoryGameScreen() {
     var cards by remember { mutableStateOf(generateCards()) }
-    var flippedCards = remember { mutableStateListOf<MemoryCard>() }
+    val flippedCards = remember { mutableStateListOf<MemoryCard>() }
     val scope = rememberCoroutineScope()
-    var allMatched by remember { mutableStateOf(false) }
+    val allMatched = remember { mutableStateOf(false) }
+    var flippedCount by remember { mutableIntStateOf(0) }
+    var rounds by remember { mutableIntStateOf(0) }
+    val bestScores = remember { mutableStateListOf<Int>() }
 
-    // Atualiza allMatched sempre que os cartões mudam
     LaunchedEffect(cards) {
-        allMatched = cards.all { it.isMatched }
-        Log.d("MemoryGame", "allMatched: $allMatched") // Log para depuração
+        allMatched.value = cards.all { it.isMatched }
+        Log.d("MemoryGame", "allMatched: ${allMatched.value}")
+        if (allMatched.value) {
+            bestScores.add(rounds)
+            Log.d("MemoryGame", "Melhores resultados: $bestScores")
+        }
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        content = { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .background(Color.LightGray),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+    Column {
+        Text(text = "Cartões virados: $flippedCount")
+        Text(text = "Rodadas: $rounds")
+        Text(text = "Melhores resultados: ${bestScores.joinToString(", ")}")
+
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            content = { innerPadding ->
+                Box(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
                 ) {
-                    CardGrid(
-                        cards = cards,
-                        flippedCards = flippedCards,
-                        onCardClicked = { card ->
-                            handleCardClick(card, flippedCards, scope)
-                        }
-                    )
-                    // Botão para reiniciar o jogo
-
-                    Button(onClick = {
-                        scope.launch {
-                            resetAllCards(cards)
-                            resetFlippedCards(flippedCards)
-                            delay(300)
-                            flippedCards.clear()
-                            cards = generateCards()
-                        }
-                    }) {
-                        Text("Reiniciar Jogo")
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CardGrid(
+                            cards = cards,
+                            flippedCards = flippedCards,
+                            onCardClicked = { card ->
+                                handleCardClick(card, flippedCards, scope, allMatched, cards, bestScores, rounds) {
+                                    flippedCount++
+                                    if (flippedCards.size % 2 == 0) {
+                                        rounds++
+                                    }
+                                }
+                            }
+                        )
+                        if (allMatched.value)
+                            Button(onClick = {
+                                scope.launch {
+                                    resetAllCards(cards)
+                                    resetFlippedCards(flippedCards)
+                                    flippedCount = 0
+                                    rounds = 0
+                                    delay(300)
+                                    flippedCards.clear()
+                                    cards = generateCards()
+                                    allMatched.value = false
+                                }
+                            }) {
+                                Text("Reiniciar Jogo")
+                            }
                     }
-
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -162,15 +180,33 @@ private fun resetAllCards(cards: List<MemoryCard>) {
     }
 }
 
-private fun handleCardClick(card: MemoryCard, flippedCards: MutableList<MemoryCard>, scope: CoroutineScope) {
+private fun handleCardClick(
+    card: MemoryCard,
+    flippedCards: MutableList<MemoryCard>,
+    scope: CoroutineScope,
+    allMatched: MutableState<Boolean>,
+    cards: List<MemoryCard>,
+    bestScores: MutableList<Int>, // Adicione bestScores como parâmetro
+    rounds: Int, // Adicione rounds como parâmetro
+    incrementFlippedCount: () -> Unit
+) {
     Log.d("MemoryGame", "Card clicked: ${card.imageResId}")
     if (flippedCards.size < 2 && !card.isFlipped && !card.isMatched) {
         Log.d("MemoryGame", "Flipping card: ${card.imageResId}")
-        flipCard(card, flippedCards, scope)
+        incrementFlippedCount() // Chama a função para incrementar o contador
+        flipCard(card, flippedCards, scope, allMatched, cards, bestScores, rounds)
     }
 }
 
-fun flipCard(card: MemoryCard, flippedCards: MutableList<MemoryCard>, scope: CoroutineScope) {
+fun flipCard(
+    card: MemoryCard,
+    flippedCards: MutableList<MemoryCard>,
+    scope: CoroutineScope,
+    allMatched: MutableState<Boolean>,
+    cards: List<MemoryCard>,
+    bestScores: MutableList<Int>, // Adicione bestScores como parâmetro
+    rounds: Int // Adicione rounds como parâmetro
+) {
     card.isFlipped = true
     flippedCards.add(card)
 
@@ -178,27 +214,47 @@ fun flipCard(card: MemoryCard, flippedCards: MutableList<MemoryCard>, scope: Cor
 
     if (flippedCards.size == 2) {
         scope.launch {
-            handleCardMatch(flippedCards)
+            handleCardMatch(flippedCards, allMatched, cards, bestScores, rounds) // Passa bestScores e rounds
         }
     }
 }
 
-private suspend fun handleCardMatch(flippedCards: MutableList<MemoryCard>) {
+private suspend fun handleCardMatch(
+    flippedCards: MutableList<MemoryCard>,
+    allMatched: MutableState<Boolean>,
+    cards: List<MemoryCard>,
+    bestScores: MutableList<Int>, // Adicione bestScores como parâmetro
+    rounds: Int // Adicione rounds como parâmetro
+) {
     delay(600) // Tempo para a animação de flip
 
     if (flippedCards[0].imageResId == flippedCards[1].imageResId) {
-        markCardsAsMatched(flippedCards)
+        markCardsAsMatched(flippedCards, allMatched, cards, bestScores, rounds) // Passa bestScores e rounds
     } else {
         resetFlippedCards(flippedCards)
     }
 }
 
-private fun markCardsAsMatched(flippedCards: MutableList<MemoryCard>) {
+private fun markCardsAsMatched(
+    flippedCards: MutableList<MemoryCard>,
+    allMatched: MutableState<Boolean>,
+    cards: List<MemoryCard>,
+    bestScores: MutableList<Int>, // Adicione bestScores como parâmetro
+    rounds: Int // Adicione rounds como parâmetro
+) {
     // Marcar as cartas como combinadas
     flippedCards[0].isMatched = true
     flippedCards[1].isMatched = true
-    // Não é necessário redefinir isFlipped, pois já está true
+    // Atualiza allMatched com base em cards
+    allMatched.value = cards.all { it.isMatched }
     Log.d("MemoryGame", "Cards matched: ${flippedCards[0].imageResId}")
+
+    // Verifica se todas as cartas estão combinadas
+    if (allMatched.value) {
+        bestScores.add(rounds)
+        Log.d("MemoryGame", "Melhores resultados: $bestScores")
+    }
+
     flippedCards.clear()
 }
 
