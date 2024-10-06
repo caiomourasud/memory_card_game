@@ -20,11 +20,12 @@ fun resetAllCards(cards: List<MemoryCard>) {
     cards: List<MemoryCard>,
     bestScores: MutableList<Int>,
     rounds: Int,
-    incrementFlippedCount: () -> Unit
+    incrementFlippedCount: () -> Unit,
+    onCardsMatched: () -> Unit
 ) {
     if (flippedCards.size < 2 && !card.isFlipped && !card.isMatched) {
         incrementFlippedCount()
-        flipCard(card, flippedCards, scope, allMatched, cards, bestScores, rounds)
+        flipCard(card, flippedCards, scope, allMatched, cards, bestScores, rounds, onCardsMatched)
     }
 }
 
@@ -35,14 +36,15 @@ fun flipCard(
     allMatched: MutableState<Boolean>,
     cards: List<MemoryCard>,
     bestScores: MutableList<Int>,
-    rounds: Int
+    rounds: Int,
+    onCardsMatched: () -> Unit
 ) {
     card.isFlipped = true
     flippedCards.add(card)
 
     if (flippedCards.size == 2) {
         scope.launch {
-            handleCardMatch(flippedCards, allMatched, cards, bestScores, rounds)
+            handleCardMatch(flippedCards, allMatched, cards, bestScores, rounds, onCardsMatched)
         }
     }
 }
@@ -52,12 +54,14 @@ fun flipCard(
     allMatched: MutableState<Boolean>,
     cards: List<MemoryCard>,
     bestScores: MutableList<Int>,
-    rounds: Int
+    rounds: Int,
+    onCardsMatched: () -> Unit
 ) {
     delay(600)
 
     if (flippedCards[0].imageResId == flippedCards[1].imageResId) {
         markCardsAsMatched(flippedCards, allMatched, cards, bestScores, rounds)
+        onCardsMatched()
     } else {
         resetFlippedCards(flippedCards)
     }
@@ -68,7 +72,7 @@ fun flipCard(
     allMatched: MutableState<Boolean>,
     cards: List<MemoryCard>,
     bestScores: MutableList<Int>,
-    rounds: Int
+    rounds: Int,
 ) {
     flippedCards[0].isMatched = true
     flippedCards[1].isMatched = true

@@ -1,5 +1,7 @@
 package br.pucpr.memorycardgame
 
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.DialogProperties
 
@@ -29,12 +32,26 @@ fun MemoryGameScreen(onExit: () -> Unit) {
     val bestScores = remember { mutableStateListOf<Int>() }
     var showExitDialog by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val soundPool =
+        SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build())
+            .build()
+
+    val matchSoundId = soundPool.load(context, R.raw.match_sound, 1)
+
+
     LaunchedEffect(cards) {
         allMatched.value = cards.all { it.isMatched }
         Log.d("MemoryGame", "allMatched: ${allMatched.value}")
         if (allMatched.value) {
             bestScores.add(rounds)
-            Log.d("MemoryGame", "Melhores resultados: $bestScores")
+            Log.d("MemoryGame", "Best Scores: $bestScores")
         }
     }
 
@@ -70,12 +87,13 @@ fun MemoryGameScreen(onExit: () -> Unit) {
                     cards = cards,
                     flippedCards = flippedCards,
                     onCardClicked = { card ->
-                        handleCardClick(card, flippedCards, scope, allMatched, cards, bestScores, rounds) {
-                            flippedCount++
+                        handleCardClick(card, flippedCards, scope, allMatched, cards, bestScores, rounds, incrementFlippedCount = { flippedCount++
                             if (flippedCards.size % 2 == 0) {
                                 rounds++
-                            }
-                        }
+                            } }, onCardsMatched = {
+                            soundPool.play(matchSoundId, 0.5f, 0.5f, 0, 0, 2f)
+
+                        })
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))

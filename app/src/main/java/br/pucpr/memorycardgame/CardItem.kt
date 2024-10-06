@@ -33,7 +33,7 @@ fun CardItem(card: MemoryCard, onClick: () -> Unit, modifier: Modifier = Modifie
             .size(90.dp)
             .padding(4.dp)
             .clip(RoundedCornerShape(16.dp))
-            .then(if (showShadow) Modifier.shadow(4.dp, RoundedCornerShape(20.dp), true) else Modifier) // Aplica sombra condicionalmente
+            .then(if (showShadow) Modifier.shadow(4.dp, RoundedCornerShape(20.dp), true) else Modifier)
             .offset(x = 2.dp, y = (-2).dp)
             .clickable(
                 onClick = { onClick() },
