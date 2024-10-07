@@ -97,8 +97,14 @@ fun MemoryGameScreen(onExit: () -> Unit) {
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { showExitDialog = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)) {
+                Button(
+                    onClick = { showExitDialog = true },
+                    modifier = Modifier.fillMaxWidth(0.6f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
                     Text("Exit", color = Color.Black)
                 }
             }

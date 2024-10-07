@@ -1,5 +1,6 @@
 package br.pucpr.memorycardgame
 
+import CreditsScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,12 +12,32 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MemoryCardGameTheme {
-                var startGame by remember { mutableStateOf(false) }
+                var currentScreen by remember { mutableStateOf("start") }
 
-                if (startGame) {
-                    MemoryGameScreen(onExit = { startGame = false })
-                } else {
-                    StartScreen { startGame = true }
+                when (currentScreen) {
+                    "game" -> MemoryGameScreen(
+                        onExit = {
+                            currentScreen = "start"
+                        })
+                    "credits" -> CreditsScreen(
+                        onBack = {
+                            currentScreen = "start"
+                        })
+                    "scores" -> ScoresScreen(
+                        onBack = {
+                            currentScreen = "start"
+                        })
+                    else -> StartScreen(
+                        onStartClick = {
+                            currentScreen = "game"
+                        },
+                        onCreditsClick = {
+                            currentScreen = "credits"
+                        },
+                        onScoresClick = {
+                            currentScreen = "scores"
+                        },
+                    )
                 }
             }
         }
