@@ -1,4 +1,4 @@
-package br.pucpr.memorycardgame
+package br.pucpr.memorycardgame.views
 
 import android.media.AudioAttributes
 import android.media.SoundPool
@@ -20,6 +20,12 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.DialogProperties
+import br.pucpr.memorycardgame.models.MemoryCard
+import br.pucpr.memorycardgame.R
+import br.pucpr.memorycardgame.utils.generateCards
+import br.pucpr.memorycardgame.utils.handleCardClick
+import br.pucpr.memorycardgame.utils.resetAllCards
+import br.pucpr.memorycardgame.utils.resetFlippedCards
 
 @Composable
 fun MemoryGameScreen(onExit: () -> Unit) {

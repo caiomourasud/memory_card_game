@@ -1,4 +1,4 @@
-package br.pucpr.memorycardgame
+package br.pucpr.memorycardgame.views
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -19,10 +19,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import br.pucpr.memorycardgame.models.MemoryCard
 
 @Composable
 fun CardItem(card: MemoryCard, onClick: () -> Unit, modifier: Modifier = Modifier, showShadow: Boolean) {
     val rotation = remember { Animatable(0f) }
+    val cardSize = 90.dp
 
     LaunchedEffect(card.isFlipped || card.isMatched) {
         rotation.animateTo(if (card.isFlipped || card.isMatched) 180f else 0f, animationSpec = tween(durationMillis = 300))
@@ -30,14 +32,14 @@ fun CardItem(card: MemoryCard, onClick: () -> Unit, modifier: Modifier = Modifie
 
     Box(
         modifier = modifier
-            .size(90.dp)
+            .size(cardSize)
             .padding(4.dp)
             .clip(RoundedCornerShape(16.dp))
             .then(if (showShadow) Modifier.shadow(4.dp, RoundedCornerShape(20.dp), true) else Modifier)
             .offset(x = 2.dp, y = (-2).dp)
             .clickable(
                 onClick = { onClick() },
-                indication = rememberRipple(color = Color.Gray, radius = 90.dp),
+                indication = rememberRipple(color = Color.Gray, radius = cardSize),
                 interactionSource = remember { MutableInteractionSource() }
             ),
         contentAlignment = Alignment.Center

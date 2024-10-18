@@ -1,4 +1,6 @@
-package br.pucpr.memorycardgame
+package br.pucpr.memorycardgame.models
+
+import br.pucpr.memorycardgame.R
 
 data class MemoryCard(
     val id: Int,

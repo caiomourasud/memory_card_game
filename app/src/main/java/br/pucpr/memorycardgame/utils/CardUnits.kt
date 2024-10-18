@@ -1,6 +1,8 @@
-package br.pucpr.memorycardgame
+package br.pucpr.memorycardgame.utils
 
 import androidx.compose.runtime.MutableState
+import br.pucpr.memorycardgame.R
+import br.pucpr.memorycardgame.models.MemoryCard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -13,15 +15,15 @@ fun resetAllCards(cards: List<MemoryCard>) {
 }
 
  fun handleCardClick(
-    card: MemoryCard,
-    flippedCards: MutableList<MemoryCard>,
-    scope: CoroutineScope,
-    allMatched: MutableState<Boolean>,
-    cards: List<MemoryCard>,
-    bestScores: MutableList<Int>,
-    rounds: Int,
-    incrementFlippedCount: () -> Unit,
-    onCardsMatched: () -> Unit
+     card: MemoryCard,
+     flippedCards: MutableList<MemoryCard>,
+     scope: CoroutineScope,
+     allMatched: MutableState<Boolean>,
+     cards: List<MemoryCard>,
+     bestScores: MutableList<Int>,
+     rounds: Int,
+     incrementFlippedCount: () -> Unit,
+     onCardsMatched: () -> Unit
 ) {
     if (flippedCards.size < 2 && !card.isFlipped && !card.isMatched) {
         incrementFlippedCount()
@@ -50,12 +52,12 @@ fun flipCard(
 }
 
  suspend fun handleCardMatch(
-    flippedCards: MutableList<MemoryCard>,
-    allMatched: MutableState<Boolean>,
-    cards: List<MemoryCard>,
-    bestScores: MutableList<Int>,
-    rounds: Int,
-    onCardsMatched: () -> Unit
+     flippedCards: MutableList<MemoryCard>,
+     allMatched: MutableState<Boolean>,
+     cards: List<MemoryCard>,
+     bestScores: MutableList<Int>,
+     rounds: Int,
+     onCardsMatched: () -> Unit
 ) {
     delay(600)
 
@@ -68,11 +70,11 @@ fun flipCard(
 }
 
  fun markCardsAsMatched(
-    flippedCards: MutableList<MemoryCard>,
-    allMatched: MutableState<Boolean>,
-    cards: List<MemoryCard>,
-    bestScores: MutableList<Int>,
-    rounds: Int,
+     flippedCards: MutableList<MemoryCard>,
+     allMatched: MutableState<Boolean>,
+     cards: List<MemoryCard>,
+     bestScores: MutableList<Int>,
+     rounds: Int,
 ) {
     flippedCards[0].isMatched = true
     flippedCards[1].isMatched = true

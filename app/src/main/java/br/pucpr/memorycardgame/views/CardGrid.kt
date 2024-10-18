@@ -1,4 +1,4 @@
-package br.pucpr.memorycardgame
+package br.pucpr.memorycardgame.views
 
 import android.media.AudioAttributes
 import android.media.SoundPool
@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import br.pucpr.memorycardgame.models.MemoryCard
+import br.pucpr.memorycardgame.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -19,6 +21,7 @@ fun CardGrid(
 ) {
     val gridSize = 4
     val animatedPositions = remember { mutableStateListOf<Pair<Float, Float>>() }
+    val cardSize = 90.dp
 
     val context = LocalContext.current
     val soundPool =

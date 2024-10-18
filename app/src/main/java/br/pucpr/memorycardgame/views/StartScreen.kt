@@ -1,4 +1,4 @@
-package br.pucpr.memorycardgame
+package br.pucpr.memorycardgame.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import br.pucpr.memorycardgame.R
 
 @Composable
 fun StartScreen(onStartClick: () -> Unit, onCreditsClick: () -> Unit, onScoresClick: () -> Unit) {

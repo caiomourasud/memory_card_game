@@ -6,6 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import br.pucpr.memorycardgame.ui.theme.MemoryCardGameTheme
+import br.pucpr.memorycardgame.views.MemoryGameScreen
+import br.pucpr.memorycardgame.views.ScoresScreen
+import br.pucpr.memorycardgame.views.StartScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
