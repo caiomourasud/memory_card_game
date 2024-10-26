@@ -1,5 +1,6 @@
 package br.pucpr.memorycardgame.utils
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import br.pucpr.memorycardgame.R
 import br.pucpr.memorycardgame.models.MemoryCard
@@ -23,11 +24,12 @@ fun resetAllCards(cards: List<MemoryCard>) {
      bestScores: MutableList<Int>,
      rounds: Int,
      incrementFlippedCount: () -> Unit,
-     onCardsMatched: () -> Unit
+     onCardsMatched: () -> Unit,
+     context: Context
 ) {
     if (flippedCards.size < 2 && !card.isFlipped && !card.isMatched) {
         incrementFlippedCount()
-        flipCard(card, flippedCards, scope, allMatched, cards, bestScores, rounds, onCardsMatched)
+        flipCard(card, flippedCards, scope, allMatched, cards, bestScores, rounds, onCardsMatched, context)
     }
 }
 
@@ -39,14 +41,15 @@ fun flipCard(
     cards: List<MemoryCard>,
     bestScores: MutableList<Int>,
     rounds: Int,
-    onCardsMatched: () -> Unit
+    onCardsMatched: () -> Unit,
+    context: Context
 ) {
     card.isFlipped = true
     flippedCards.add(card)
 
     if (flippedCards.size == 2) {
         scope.launch {
-            handleCardMatch(flippedCards, allMatched, cards, bestScores, rounds, onCardsMatched)
+            handleCardMatch(flippedCards, allMatched, cards, bestScores, rounds, onCardsMatched, context)
         }
     }
 }
@@ -57,12 +60,13 @@ fun flipCard(
      cards: List<MemoryCard>,
      bestScores: MutableList<Int>,
      rounds: Int,
-     onCardsMatched: () -> Unit
+     onCardsMatched: () -> Unit,
+     context: Context
 ) {
     delay(600)
 
     if (flippedCards[0].imageResId == flippedCards[1].imageResId) {
-        markCardsAsMatched(flippedCards, allMatched, cards, bestScores, rounds)
+        markCardsAsMatched(flippedCards, allMatched, cards, bestScores, rounds, context)
         onCardsMatched()
     } else {
         resetFlippedCards(flippedCards)
@@ -75,12 +79,15 @@ fun flipCard(
      cards: List<MemoryCard>,
      bestScores: MutableList<Int>,
      rounds: Int,
+     context: Context
 ) {
     flippedCards[0].isMatched = true
     flippedCards[1].isMatched = true
     allMatched.value = cards.all { it.isMatched }
 
     if (allMatched.value) {
+        val scoreManager = ScoreManager(context)
+        scoreManager.saveScore(rounds)
         bestScores.add(rounds)
     }
 

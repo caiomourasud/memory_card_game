@@ -22,13 +22,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.DialogProperties
 import br.pucpr.memorycardgame.models.MemoryCard
 import br.pucpr.memorycardgame.R
+import br.pucpr.memorycardgame.utils.ScoreManager
 import br.pucpr.memorycardgame.utils.generateCards
 import br.pucpr.memorycardgame.utils.handleCardClick
 import br.pucpr.memorycardgame.utils.resetAllCards
 import br.pucpr.memorycardgame.utils.resetFlippedCards
 
 @Composable
-fun MemoryGameScreen(onExit: () -> Unit) {
+fun MemoryGameScreen(scoreManager: ScoreManager, onExit: () -> Unit) {
     var cards by remember { mutableStateOf(generateCards()) }
     val flippedCards = remember { mutableStateListOf<MemoryCard>() }
     val scope = rememberCoroutineScope()
@@ -85,9 +86,23 @@ fun MemoryGameScreen(onExit: () -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Cards turned over: $flippedCount", color = Color.DarkGray)
-                Text(text = "Rounds: $rounds", color = Color.DarkGray)
-                Text(text = "Best Scores: ${bestScores.joinToString(", ")}", color = Color.DarkGray)
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Card(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(text = "Rounds: $rounds", color = Color.DarkGray, modifier = Modifier.padding(8.dp))
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Card(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(text = "Best Score: ${scoreManager.getLowestScore()}", color = Color.DarkGray, modifier = Modifier.padding(8.dp))
+                    }
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 CardGrid(
                     cards = cards,
@@ -99,7 +114,7 @@ fun MemoryGameScreen(onExit: () -> Unit) {
                             } }, onCardsMatched = {
                             soundPool.play(matchSoundId, 0.5f, 0.5f, 0, 0, 2f)
 
-                        })
+                        }, context)
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
